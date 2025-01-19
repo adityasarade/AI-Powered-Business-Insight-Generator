@@ -53,13 +53,11 @@ if st.button("Fetch Stock Data"):
         with col2:
             st.markdown(f"<div class='metric-value'>Close: ${current_price['Close'].iloc[-1]:.2f}</div>", unsafe_allow_html=True)
         
-        # Display the historical data
         st.write("### Historical Stock Data")
-        st.write(stock_data)
-
-        # Display the technical indicators
+        st.dataframe(stock_data, height=200)
         st.write("### Technical Indicators")
-        st.write(indicators)
+        st.dataframe(indicators, height=200)
+        
         # Plot Candle Chart using Plotly
         fig = go.Figure(data=[go.Candlestick(
             x=stock_data.index,
