@@ -2,12 +2,8 @@ import streamlit as st
 import pandas as pd
 from yfinance_api import fetch_yfinance_data
 from llmhelper import get_llm_response  # Import the LLM response function
-import json
 import plotly.graph_objects as go
 
-# Load quotes from a JSON file
-with open("quotes.json") as file:
-    quotes = json.load(file)
 
 # Streamlit App
 st.title("AI-Powered Stock Insights")
