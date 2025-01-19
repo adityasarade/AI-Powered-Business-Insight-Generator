@@ -1,4 +1,4 @@
-import yfinance as yf
+import yfinance as yf # type: ignore
 import pandas as pd
 
 def fetch_yfinance_data(company_name, interval):

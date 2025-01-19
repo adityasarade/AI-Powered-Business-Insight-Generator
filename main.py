@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from yfinance_api import fetch_yfinance_data
 from llmhelper import get_llm_response  # Import the LLM response function
-import plotly.graph_objects as go
+import plotly.graph_objects as go # type: ignore
 
 
 # Streamlit App
