@@ -11,6 +11,8 @@ def fetch_yfinance_data(company_name, interval):
             data = stock.history(period="6mo", interval="1wk")
         elif interval == "Monthly":
             data = stock.history(period="1y", interval="1mo")
+        elif interval == "Yearly":
+            data = stock.history(period="10y", interval="1mo")
 
         # Calculate technical indicators manually
 
@@ -41,6 +43,7 @@ def fetch_yfinance_data(company_name, interval):
         data['Bollinger_Low'] = data['Bollinger_Mid'] - 2 * data['Close'].rolling(window=20).std()
 
         # Select and return technical indicators
+        data=data.sort_values(by='Date',ascending=False)
         indicators = data[["SMA", "EMA", "RSI", "MACD", "MACD_Signal", "Bollinger_High", "Bollinger_Low"]]
         return data, indicators, current_price
 
