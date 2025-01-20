@@ -22,6 +22,25 @@ if st.button("Fetch Stock Data"):
     stock_data, indicators, current_price, news_response = fetch_yfinance_data(company_name, interval)
 
     if stock_data is not None:
+        # Plot Candle Chart using Plotly
+        fig = go.Figure(data=[go.Candlestick(
+            x=stock_data.index,
+            open=stock_data['Open'],
+            high=stock_data['High'],
+            low=stock_data['Low'],
+            close=stock_data['Close'],
+            increasing_line_color='green',
+            decreasing_line_color='red'
+        )])
+
+        fig.update_layout(
+            title=f"Candlestick Chart for {company_name}",
+            xaxis_title="Date",
+            yaxis_title="Price (USD)",
+            xaxis_rangeslider_visible=False
+        )
+
+        st.plotly_chart(fig)
         # Display Historical Stock Data
         st.write("### Historical Stock Data")
         styled_stock_data = stock_data.style.set_table_styles(
@@ -45,25 +64,6 @@ if st.button("Fetch Stock Data"):
             }.items():
                 st.markdown(f"**{col}**: {desc}")
 
-        # Plot Candle Chart using Plotly
-        fig = go.Figure(data=[go.Candlestick(
-            x=stock_data.index,
-            open=stock_data['Open'],
-            high=stock_data['High'],
-            low=stock_data['Low'],
-            close=stock_data['Close'],
-            increasing_line_color='green',
-            decreasing_line_color='red'
-        )])
-
-        fig.update_layout(
-            title=f"Candlestick Chart for {company_name}",
-            xaxis_title="Date",
-            yaxis_title="Price (USD)",
-            xaxis_rangeslider_visible=False
-        )
-
-        st.plotly_chart(fig)
 
         # Generate insights using LLM
         prompt = f"""
