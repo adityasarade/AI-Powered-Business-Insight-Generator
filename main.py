@@ -58,7 +58,7 @@ st.sidebar.title("Navigation")
 
 
 # List of sections for navigation
-sections = ["Introduction", "Historical Data", "Technical Indicators", "Candlestick Chart", "AI Insights"]
+sections = ["Introduction", "Candlestick Chart", "Historical Data", "Technical Indicators", "AI Insights"]
 
 # Add links to the sidebar
 for section in sections:
@@ -93,38 +93,8 @@ if st.button("Fetch Stock Data"):
         st.write(intro_text)
         report_content.write("Introduction:\n")
         report_content.write(f"{company_name} is listed on {exchange}.\n\n")
-
-        # Section 2: Historical Stock Data
-        st.markdown("<h2 id='historical-data'>Historical Stock Data</h2>", unsafe_allow_html=True)
-        styled_stock_data = stock_data.style.set_table_styles(
-            [{"selector": "th", "props": [("text-align", "center")]}]
-        ).set_properties(**{"text-align": "center"})
-        st.dataframe(styled_stock_data, height=200, use_container_width=True)
-        report_content.write("Historical Stock Data:\n")
-        report_content.write(stock_data.to_csv(index=True))
-        report_content.write("\n\n")
-
-        # Section 3: Technical Indicators
-        st.markdown("<h2 id='technical-indicators'>Technical Indicators</h2>", unsafe_allow_html=True)
-        st.dataframe(indicators, height=200, use_container_width=True)
-        report_content.write("Technical Indicators:\n")
-        report_content.write(indicators.to_csv(index=True))
-        report_content.write("\n\n")
-
-        # Display tooltips in an expander
-        st.write("### Indicator Details")
-        with st.expander("See Indicator Details"):
-            for col, desc in {
-                "SMA": "Simple Moving Average (SMA) is the average of the closing prices for a specified period. It smooths price data to help identify trends.",
-                "EMA": "Exponential Moving Average (EMA) gives more weight to recent prices, and reacts more quickly to price changes than the SMA.",
-                "RSI": "The Relative Strength Index (RSI) is a momentum oscillator that measures the speed and change of price movements. It ranges from 0 to 100.",
-                "MACD": "The Moving Average Convergence Divergence (MACD) is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price."
-            }.items():
-                st.markdown(f"**{col}**: {desc}")
-                report_content.write(f"{col}: {desc}\n")
-        report_content.write("\n")
-
-        # Section 4: Candlestick Chart
+        
+        # Section 2: Candlestick Chart
         st.markdown("<h2 id='candlestick-chart'>Candlestick Chart</h2>", unsafe_allow_html=True)
         fig = go.Figure(data=[go.Candlestick(
             x=stock_data.index,
@@ -145,6 +115,37 @@ if st.button("Fetch Stock Data"):
         st.plotly_chart(fig)
         report_content.write("Candlestick Chart:\n")
         report_content.write("The candlestick chart visualizes stock price movements for the selected interval.\n\n")
+
+
+        # Section 3: Historical Stock Data
+        st.markdown("<h2 id='historical-data'>Historical Stock Data</h2>", unsafe_allow_html=True)
+        styled_stock_data = stock_data.style.set_table_styles(
+            [{"selector": "th", "props": [("text-align", "center")]}]
+        ).set_properties(**{"text-align": "center"})
+        st.dataframe(styled_stock_data, height=200, use_container_width=True)
+        report_content.write("Historical Stock Data:\n")
+        report_content.write(stock_data.to_csv(index=True))
+        report_content.write("\n\n")
+
+        # Section 4: Technical Indicators
+        st.markdown("<h2 id='technical-indicators'>Technical Indicators</h2>", unsafe_allow_html=True)
+        st.dataframe(indicators, height=200, use_container_width=True)
+        report_content.write("Technical Indicators:\n")
+        report_content.write(indicators.to_csv(index=True))
+        report_content.write("\n\n")
+
+        # Display tooltips in an expander
+        st.write("### Indicator Details")
+        with st.expander("See Indicator Details"):
+            for col, desc in {
+                "SMA": "Simple Moving Average (SMA) is the average of the closing prices for a specified period. It smooths price data to help identify trends.",
+                "EMA": "Exponential Moving Average (EMA) gives more weight to recent prices, and reacts more quickly to price changes than the SMA.",
+                "RSI": "The Relative Strength Index (RSI) is a momentum oscillator that measures the speed and change of price movements. It ranges from 0 to 100.",
+                "MACD": "The Moving Average Convergence Divergence (MACD) is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price."
+            }.items():
+                st.markdown(f"**{col}**: {desc}")
+                report_content.write(f"{col}: {desc}\n")
+        report_content.write("\n")
 
         # Section 5: AI Insights
         st.markdown("<h2 id='ai-insights'>AI Insights</h2>", unsafe_allow_html=True)
