@@ -5,21 +5,20 @@ from llmhelper import get_llm_response  # Import the LLM response function
 import plotly.graph_objects as go  # type: ignore
 import json
 from io import StringIO
+from prompt_hidden import get_prompt # imported the hidden prompt, which is used to query LLM
+from generate_pdf import generate_pdf
 
 # Load the company data
 with open('companies.json', 'r') as f:
     data = json.load(f)
 
-# Set wide layout
 
 # Sidebar Customization
 st.sidebar.markdown(
     """
     <style>
-    /* Remove the blue sidebar line */
     .css-1d391kg {display: none;}
 
-    /* Customize sidebar container */
     .sidebar-box {
         background-color: #f9f9f9;
         padding: 15px;
@@ -28,12 +27,11 @@ st.sidebar.markdown(
         text-decoration-line: none; 
     }
 
-    /* Style sidebar links */
     .sidebar-link {
         display: block;
         padding: 10px 15px;
         margin-bottom: 10px;
-        background-color: #333;
+        background-color: #606060 ;
         text-align: center;
         border-radius: 5px;
         color: #333333;
@@ -58,7 +56,6 @@ st.sidebar.markdown(
 # Sidebar Title
 st.sidebar.title("Navigation")
 
-# Create a box for navigation tabs
 
 # List of sections for navigation
 sections = ["Introduction", "Historical Data", "Technical Indicators", "Candlestick Chart", "AI Insights"]
@@ -70,11 +67,14 @@ for section in sections:
 
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
+
+# main code for input
 # Dropdown for company, stock exchange, and interval
 exchange = st.selectbox("Select Stock Exchange", list(data.keys()))
 company = st.selectbox("Select Company", list(data[exchange].keys()))
 company_name = data[exchange][company]
 interval = st.selectbox("Select Interval", ["Daily", "Weekly", "Monthly", "Yearly", "Max"])
+
 
 # Fetch Data
 if st.button("Fetch Stock Data"):
@@ -148,18 +148,9 @@ if st.button("Fetch Stock Data"):
 
         # Section 5: AI Insights
         st.markdown("<h2 id='ai-insights'>AI Insights</h2>", unsafe_allow_html=True)
-        prompt = f"""
-        Analyze the stock performance of {company_name} over the {interval} period.
-        Check the current news of the company and based on it give insights: {news_response}.
-        Also give a company overview first and then start the following:
-        Use the following technical indicators: {indicators}.
-        Provide actionable insights and a summary for an investor.
-        Answer whether one should buy this stock or not.
-        Analyze it based on data and do not show disclaimers like "This analysis is based on technical indicators and should not be considered as investment advice."
-        Be specific in your answer and do not generalize the opinion. Explain the recommendation in simple language.
-        Also mention until when to wait, if you think one should not buy that stock now.
-        Use points for readability and clarity.
-        """
+        
+        # get prompt from prompt_hidden python file
+        prompt = get_prompt(company_name,interval,news_response,indicators)
         insights = get_llm_response(prompt)
         st.write(insights)
         report_content.write("AI Insights:\n")
@@ -167,11 +158,13 @@ if st.button("Fetch Stock Data"):
         report_content.write("\n")
 
         # Download Button
+        pdf_output = generate_pdf(company_name, exchange, interval, stock_data, indicators, insights)
+
         st.download_button(
-            label="Download Report",
-            data=report_content.getvalue(),
-            file_name=f"{company_name}_stock_report.txt",
-            mime="text/plain"
+            label="Download PDF Report",
+            data=pdf_output,
+            file_name=f"{company_name}_stock_report.pdf",
+            mime="application/pdf"
         )
     else:
         st.error("Failed to fetch stock data. Check the company name or data source.")

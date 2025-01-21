@@ -21,21 +21,19 @@ def extract_news(company_name):
 
     sorted_news = sorted(company_news, key=lambda x: x['pubDate'], reverse=True)
     
-    # Save to JSON file
-    with open("new.json", 'w') as json_file:
-        json.dump(sorted_news, json_file, indent=4)
+    # save in memory
+    news_data = json.dumps(sorted_news, indent=4)
+    return news_data
 
-    print("News saved to news.json")
+def get_news_sorted(news_data):
 
-def get_news_sorted():
-    with open("new.json", 'r') as file:
-        news_data = json.load(file)
+    news_data_loaded = json.loads(news_data)
     
     prompt = f"""
     Summarize the following news and provide important insights. 
     Focus on key events, trends, and any conclusions that can be drawn, 
     No Preamble:
-    {news_data} 
+    {news_data_loaded} 
     """
     response = get_llm_response(prompt)
     return response
@@ -100,11 +98,11 @@ def fetch_yfinance_data(company_name, interval):
         data = data.drop(columns=["SMA", "EMA", "RSI", "MACD", "MACD_Signal", "Bollinger_High", "Bollinger_Low","Bollinger_Mid"])
 
         # Get news articles sorted aby LLM into json file
-        extract_news(company_name)
-        news_response = get_news_sorted()
-
+        news_data = extract_news(company_name)
+        news_response = get_news_sorted(news_data)
+        
         return data, indicators, current_price, news_response
 
     except Exception as e:
         print(e)
-        return None, None
+        return None, None, None, None
