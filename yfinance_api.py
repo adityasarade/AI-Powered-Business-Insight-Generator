@@ -3,6 +3,31 @@ import pandas as pd
 from llmhelper import get_llm_response
 import json
 
+def fetch_company_details(ticker: str):
+    """Fetch basic company information from yfinance."""
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+
+        # Extract relevant details
+        company_details = {
+            'longName': info.get('longName', 'N/A'),
+            'sector': info.get('sector', 'N/A'),
+            'industry': info.get('industry', 'N/A'),
+            'marketCap': info.get('marketCap', 'N/A'),
+            'peRatio': info.get('trailingPE', 'N/A'),
+        }
+        return company_details
+    except Exception as e:
+        print(f"Error fetching company details for {ticker}: {e}")
+        return {
+            'longName': 'N/A',
+            'sector': 'N/A',
+            'industry': 'N/A',
+            'marketCap': 'N/A',
+            'peRatio': 'N/A',
+        }
+
 def extract_news(company_name):
 
     stock = yf.Ticker(company_name)
@@ -106,3 +131,4 @@ def fetch_yfinance_data(company_name, interval):
     except Exception as e:
         print(e)
         return None, None, None, None
+    

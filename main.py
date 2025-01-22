@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from yfinance_api import fetch_yfinance_data
+from yfinance_api import fetch_yfinance_data, fetch_company_details
 from llmhelper import get_llm_response  # Import the LLM response function
 import plotly.graph_objects as go  # type: ignore
 import json
@@ -89,10 +89,33 @@ if st.button("Fetch Stock Data"):
 
         # Section 1: Introduction
         st.markdown("<h2 id='introduction'>Introduction</h2>", unsafe_allow_html=True)
-        intro_text = f"Fetching data for **{company_name}** listed on **{exchange}**."
+
+        # Fetch company details using the new function
+        company_details = fetch_company_details(company)
+
+        # Extract details for display
+        company_long_name = company_details['longName']
+        sector = company_details['sector']
+        industry = company_details['industry']
+        market_cap = company_details['marketCap']
+        pe_ratio = company_details['peRatio']
+
+        # Format and display in Streamlit
+        intro_text = (
+            f"We are fetching data for **{company_long_name}**, a company listed on the **{exchange}** stock exchange.\n\n"
+            f"This company operates in the **{sector}** sector and specializes in the **{industry}** industry.\n\n"
+            f"As of the latest data, the company's market capitalization is approximately **${market_cap:,} USD**.\n\n"
+            f"The current price-to-earnings (P/E) ratio for {company_long_name} is **{pe_ratio}**."
+        )
         st.write(intro_text)
+
+        # Add to the report content
         report_content.write("Introduction:\n")
-        report_content.write(f"{company_name} is listed on {exchange}.\n\n")
+        report_content.write(f"We are fetching data for {company_long_name}, a company listed on the {exchange} stock exchange.\n")
+        report_content.write(f"This company operates in the {sector} sector and specializes in the {industry} industry.\n")
+        report_content.write(f"As of the latest data, the company's market capitalization is approximately ${market_cap:,} USD.\n")
+        report_content.write(f"The current price-to-earnings (P/E) ratio for {company_long_name} is {pe_ratio}.\n\n")
+
         
         # Section 2: Candlestick Chart
         st.markdown("<h2 id='candlestick-chart'>Candlestick Chart</h2>", unsafe_allow_html=True)
