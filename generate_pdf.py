@@ -17,8 +17,7 @@ class StyledPDF(FPDF):
         self.cell(0, 10, f'Page {self.page_no()}', align='C')
 
 
-
-def generate_pdf(company_name, exchange, interval, stock_data, indicators, insights):
+def generate_pdf(company_name, stock_data, indicators, insights,exchange):
     # Create StyledPDF object
     pdf = StyledPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -37,13 +36,6 @@ def generate_pdf(company_name, exchange, interval, stock_data, indicators, insig
                           f"It includes historical stock data, technical indicators, and actionable insights for stakeholders.\n\n")
 
     pdf.ln(10)
-
-
-    # Add insights or additional content as needed
-    pdf.ln(120)  # Adjust spacing after the chart
-    pdf.set_font('Arial', '', 12)
-    pdf.multi_cell(0, 10, "This chart provides a visual overview of stock performance, highlighting key price movements over time.")
-
 
     # Historical Stock Data Section
     pdf.add_page()

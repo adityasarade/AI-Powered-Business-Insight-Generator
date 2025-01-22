@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from yfinance_api import fetch_yfinance_data, fetch_company_details
+from yfinance_api import fetch_yfinance_data
 from llmhelper import get_llm_response  # Import the LLM response function
 import plotly.graph_objects as go  # type: ignore
 import json
@@ -78,7 +78,7 @@ interval = st.selectbox("Select Interval", ["Daily", "Weekly", "Monthly", "Yearl
 
 # Fetch Data
 if st.button("Fetch Stock Data"):
-    stock_data, indicators, current_price, news_response = fetch_yfinance_data(company_name, interval)
+    stock_data, indicators, current_price, news_response, company_details = fetch_yfinance_data(company_name, interval)
 
     if stock_data is not None:
         # Prepare the report content
@@ -89,33 +89,11 @@ if st.button("Fetch Stock Data"):
 
         # Section 1: Introduction
         st.markdown("<h2 id='introduction'>Introduction</h2>", unsafe_allow_html=True)
-
-        # Fetch company details using the new function
-        company_details = fetch_company_details(company)
-
-        # Extract details for display
-        company_long_name = company_details['longName']
-        sector = company_details['sector']
-        industry = company_details['industry']
-        market_cap = company_details['marketCap']
-        pe_ratio = company_details['peRatio']
-
-        # Format and display in Streamlit
-        intro_text = (
-            f"We are fetching data for **{company_long_name}**, a company listed on the **{exchange}** stock exchange.\n\n"
-            f"This company operates in the **{sector}** sector and specializes in the **{industry}** industry.\n\n"
-            f"As of the latest data, the company's market capitalization is approximately **${market_cap:,} USD**.\n\n"
-            f"The current price-to-earnings (P/E) ratio for {company_long_name} is **{pe_ratio}**."
-        )
-        st.write(intro_text)
-
-        # Add to the report content
-        report_content.write("Introduction:\n")
-        report_content.write(f"We are fetching data for {company_long_name}, a company listed on the {exchange} stock exchange.\n")
-        report_content.write(f"This company operates in the {sector} sector and specializes in the {industry} industry.\n")
-        report_content.write(f"As of the latest data, the company's market capitalization is approximately ${market_cap:,} USD.\n")
-        report_content.write(f"The current price-to-earnings (P/E) ratio for {company_long_name} is {pe_ratio}.\n\n")
-
+        st.write(f"**Company:** {company_details['longName']}")
+        st.write(f"**Sector:** {company_details['sector']}")
+        st.write(f"**Industry:** {company_details['industry']}")
+        st.write(f"**Market Cap:** {company_details['marketCap']}")
+        st.write(f"**P/E Ratio:** {company_details['peRatio']}")
         
         # Section 2: Candlestick Chart
         st.markdown("<h2 id='candlestick-chart'>Candlestick Chart</h2>", unsafe_allow_html=True)
@@ -140,8 +118,8 @@ if st.button("Fetch Stock Data"):
         report_content.write("The candlestick chart visualizes stock price movements for the selected interval.\n\n")
 
 
-        # Section 3: Historical Stock Data
-        st.markdown("<h2 id='historical-data'>Historical Stock Data</h2>", unsafe_allow_html=True)
+        # Section 3: Historical Data
+        st.markdown("<h2 id='historical-data'>Historical data</h2>", unsafe_allow_html=True)
         styled_stock_data = stock_data.style.set_table_styles(
             [{"selector": "th", "props": [("text-align", "center")]}]
         ).set_properties(**{"text-align": "center"})
@@ -182,7 +160,7 @@ if st.button("Fetch Stock Data"):
         report_content.write("\n")
 
         # Download Button
-        pdf_output = generate_pdf(company_name, exchange, interval, stock_data, indicators, insights)
+        pdf_output = generate_pdf(company_name, stock_data, indicators, insights, exchange)
 
         st.download_button(
             label="Download PDF Report",

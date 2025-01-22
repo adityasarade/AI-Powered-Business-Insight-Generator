@@ -3,10 +3,17 @@ import pandas as pd
 from llmhelper import get_llm_response
 import json
 
-def fetch_company_details(ticker: str):
+def format_large_number(number):
+    if number >= 1_000_000_000:
+        return f"{number / 1_000_000_000:.2f} Billion"
+    elif number >= 1_000_000:
+        return f"{number / 1_000_000:.2f} Million"
+    else:
+        return str(number)
+
+def fetch_company_details(stock):
     """Fetch basic company information from yfinance."""
     try:
-        stock = yf.Ticker(ticker)
         info = stock.info
 
         # Extract relevant details
@@ -14,12 +21,12 @@ def fetch_company_details(ticker: str):
             'longName': info.get('longName', 'N/A'),
             'sector': info.get('sector', 'N/A'),
             'industry': info.get('industry', 'N/A'),
-            'marketCap': info.get('marketCap', 'N/A'),
+            'marketCap': format_large_number(info.get('marketCap', 'N/A')),
             'peRatio': info.get('trailingPE', 'N/A'),
         }
         return company_details
     except Exception as e:
-        print(f"Error fetching company details for {ticker}: {e}")
+        print(f"Error fetching company details : {e}")
         return {
             'longName': 'N/A',
             'sector': 'N/A',
@@ -125,8 +132,8 @@ def fetch_yfinance_data(company_name, interval):
         # Get news articles sorted aby LLM into json file
         news_data = extract_news(company_name)
         news_response = get_news_sorted(news_data)
-        
-        return data, indicators, current_price, news_response
+        company_details = fetch_company_details(stock)
+        return data, indicators, current_price, news_response, company_details
 
     except Exception as e:
         print(e)
