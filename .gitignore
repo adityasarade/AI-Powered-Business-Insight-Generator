@@ -1,4 +1,4 @@
 .env
 venv
-__pycache__
-generate_pdf.py
+_pycache__
+prompt_hidden.py
