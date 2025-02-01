@@ -7,7 +7,6 @@ load_dotenv()
 llm = ChatGroq(groq_api_key=os.getenv("GROQ_API_KEY"), model_name="llama-3.3-70b-versatile")
 def get_llm_response(prompt):
     try:
-        # Ensure prompt is in correct message format
         messages = [
             {
                 "role": "system",
@@ -19,7 +18,6 @@ def get_llm_response(prompt):
             }
         ]
         
-        # Get the response from the LLM
         response = llm.invoke(messages)
         return response.content
     except Exception as e:

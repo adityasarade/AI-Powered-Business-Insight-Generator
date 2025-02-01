@@ -52,8 +52,7 @@ def extract_news(company_name):
         })
 
     sorted_news = sorted(company_news, key=lambda x: x['pubDate'], reverse=True)
-    
-    # save in memory
+
     news_data = json.dumps(sorted_news, indent=4)
     return news_data
 
@@ -84,14 +83,11 @@ def get_stock_data(interval,stock):
     return data
 
 def calculate_technical_indicators(data):
-    
-    # Simple Moving Average (SMA)
+   
     data['SMA'] = data['Close'].rolling(window=14).mean()
 
-    # Exponential Moving Average (EMA)
     data['EMA'] = data['Close'].ewm(span=14, adjust=False).mean()
 
-    # Relative Strength Index (RSI)
     delta = data['Close'].diff()
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
@@ -100,13 +96,11 @@ def calculate_technical_indicators(data):
     rs = avg_gain / avg_loss
     data['RSI'] = 100 - (100 / (1 + rs))
 
-    # Moving Average Convergence Divergence (MACD)
     ema12 = data['Close'].ewm(span=12, adjust=False).mean()
     ema26 = data['Close'].ewm(span=26, adjust=False).mean()
     data['MACD'] = ema12 - ema26
     data['MACD_Signal'] = data['MACD'].ewm(span=9, adjust=False).mean()
 
-    # Bollinger Bands
     data['Bollinger_Mid'] = data['Close'].rolling(window=20).mean()
     data['Bollinger_High'] = data['Bollinger_Mid'] + 2 * data['Close'].rolling(window=20).std()
     data['Bollinger_Low'] = data['Bollinger_Mid'] - 2 * data['Close'].rolling(window=20).std()
@@ -118,18 +112,18 @@ def fetch_yfinance_data(company_name, interval):
         stock = yf.Ticker(company_name)
         current_price = stock.history(period="1d")
 
-        # get stock history data
+        # Get stock history data
         data = get_stock_data(interval,stock)
         
         # Calculate technical indicators manually
         data = calculate_technical_indicators(data)
 
-        # Sort and Select and return technical indicators
+        # Return technical indicators
         data=data.sort_values(by='Date',ascending=False)
         indicators = data[["SMA", "EMA", "RSI", "MACD", "MACD_Signal", "Bollinger_High", "Bollinger_Low"]]
         data = data.drop(columns=["SMA", "EMA", "RSI", "MACD", "MACD_Signal", "Bollinger_High", "Bollinger_Low","Bollinger_Mid"])
 
-        # Get news articles sorted aby LLM into json file
+        # Get news articles sorted by LLM into json file
         news_data = extract_news(company_name)
         news_response = get_news_sorted(news_data)
         company_details = fetch_company_details(stock)

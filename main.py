@@ -1,19 +1,18 @@
 import streamlit as st
 import pandas as pd
 from yfinance_api import fetch_yfinance_data
-from llmhelper import get_llm_response  # Import the LLM response function
-import plotly.graph_objects as go  # type: ignore
+from llmhelper import get_llm_response 
+import plotly.graph_objects as go  
 import json
 from io import StringIO
-from hidden_prompt import get_prompt # imported the hidden prompt, which is used to query LLM
+from hidden_prompt import get_prompt 
 from generate_pdf import generate_pdf
 
 # Load the company data
 with open('companies.json', 'r') as f:
     data = json.load(f)
 
-
-# Sidebar Customization
+# Sidebar
 st.sidebar.markdown(
     """
     <style>
@@ -53,14 +52,10 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# Sidebar Title
 st.sidebar.title("Navigation")
 
-
-# List of sections for navigation
 sections = ["Introduction", "Candlestick Chart", "Historical Data", "Technical Indicators", "AI Insights"]
 
-# Add links to the sidebar
 for section in sections:
     link = f'<a href="#{section.lower().replace(" ", "-")}" class="sidebar-link">{section}</a>'
     st.sidebar.markdown(link, unsafe_allow_html=True)
@@ -69,19 +64,17 @@ st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 
 # main code for input
-# Dropdown for company, stock exchange, and interval
 exchange = st.selectbox("Select Stock Exchange", list(data.keys()))
 company = st.selectbox("Select Company", list(data[exchange].keys()))
 company_name = data[exchange][company]
 interval = st.selectbox("Select Interval", ["Daily", "Weekly", "Monthly", "Yearly", "Max"])
-
 
 # Fetch Data
 if st.button("Fetch Stock Data"):
     stock_data, indicators, current_price, news_response, company_details = fetch_yfinance_data(company_name, interval)
 
     if stock_data is not None:
-        # Prepare the report content
+        
         report_content = StringIO()
         report_content.write(f"Stock Exchange: {exchange}\n")
         report_content.write(f"Company: {company_name}\n")
@@ -135,7 +128,6 @@ if st.button("Fetch Stock Data"):
         report_content.write(indicators.to_csv(index=True))
         report_content.write("\n\n")
 
-        # Display tooltips in an expander
         st.write("### Indicator Details")
         with st.expander("See Indicator Details"):
             for col, desc in {
@@ -151,7 +143,7 @@ if st.button("Fetch Stock Data"):
         # Section 5: AI Insights
         st.markdown("<h2 id='ai-insights'>AI Insights</h2>", unsafe_allow_html=True)
         
-        # get prompt from prompt_hidden python file
+        # Get prompt from prompt_hidden python file
         prompt = get_prompt(company_name,interval,news_response,indicators)
         insights = get_llm_response(prompt)
         st.write(insights)
@@ -159,7 +151,6 @@ if st.button("Fetch Stock Data"):
         report_content.write(insights)
         report_content.write("\n")
 
-        # Download Button
         pdf_output = generate_pdf(company_name, stock_data, indicators, insights, exchange)
 
         st.download_button(
