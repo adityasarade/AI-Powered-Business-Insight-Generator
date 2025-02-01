@@ -5,7 +5,7 @@ from llmhelper import get_llm_response  # Import the LLM response function
 import plotly.graph_objects as go  # type: ignore
 import json
 from io import StringIO
-from prompt_hidden import get_prompt # imported the hidden prompt, which is used to query LLM
+from hidden_prompt import get_prompt # imported the hidden prompt, which is used to query LLM
 from generate_pdf import generate_pdf
 
 # Load the company data
